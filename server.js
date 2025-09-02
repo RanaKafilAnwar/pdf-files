@@ -8,6 +8,20 @@ const app = express();
 const path = require('path');
 require('dotenv').config();
 
+const cors = require('cors');
+
+app.use(cors({
+  origin: [
+    "http://localhost:3000", // your local dev frontend
+    "https://quizz-18uyh9iw3-zaheer-ahmeds-projects.vercel.app" // production frontend
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
+
+app.options("*", cors()); 
+
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(cookieParser());

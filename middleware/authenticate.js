@@ -23,15 +23,14 @@ function bindUser(req, res, next) {
 // Keep your existing middlewares for routes that need strict authentication
 function authenticate(req, res, next) {
     if (!req.user) {
-        return res.status(401).redirect('https://quizz-18uyh9iw3-zaheer-ahmeds-projects.vercel.app/auth/login');
+        return res.status(401).json({ error: "Unauthorized" }); // JSON, not redirect    
     }
     next();
 }
 
 function isAdmin(req, res, next) {
     if (!req.user || req.user.role !== 'admin') {
-        return res.status(403).redirect('https://quizz-18uyh9iw3-zaheer-ahmeds-projects.vercel.app/');
-    }
+        return res.status(403).json({ error: "Forbidden: Admins only" });    }
     next();
 }
 
