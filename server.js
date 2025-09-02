@@ -8,6 +8,10 @@ const app = express();
 const path = require('path');
 require('dotenv').config();
 
+// Set EJS as the template engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 const cors = require('cors');
 
 app.use(cors({
@@ -28,6 +32,8 @@ app.use(cookieParser());
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('/data/uploads'));
+
+
 
 
 // Create MySQL session store

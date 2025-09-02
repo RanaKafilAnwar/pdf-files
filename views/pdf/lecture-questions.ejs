@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title><%= lecture.title %> Questions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #34495e;
+            font-size: 20px;
+            margin-top: 30px;
+        }
+        .question {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .options {
+            margin-left: 20px;
+        }
+        .option {
+            margin-bottom: 5px;
+        }
+        .correct {
+            color: #27ae60;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1><%= course.title %> - <%= lecture.title %></h1>
+    <h2>Questions</h2>
+    
+    <% if(questions.length > 0) { %>
+        <% questions.forEach((question, index) => { %>
+            <div class="question">
+                <div class="question-text">
+                    <%= index + 1 %>. <%= question.question_text %>
+                </div>
+                <div class="options">
+                    <% question.options.forEach(option => { %>
+                        <div class="option <%= option.is_correct ? 'correct' : '' %>">
+                            • <%= option.option_text %>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        <% }) %>
+    <% } else { %>
+        <p>No questions available for this lecture.</p>
+    <% } %>
+</body>
+</html>
