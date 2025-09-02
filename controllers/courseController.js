@@ -14,10 +14,10 @@ const create = async (req, res) => {
     }
 
     const handoutData = req.file ? {
-      // ✅ Save path WITH 'public'
-      handout_pdf: req.file.path,
+      handout_pdf: req.file.path,   // full path in /data/uploads/...
       handout_original_filename: req.file.originalname
     } : {};
+
 
     const course = await Course.create({
       title,
@@ -35,23 +35,20 @@ const create = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-    const updateData = { 
+    const updateData = {
       title: req.body.title,
-      slug: req.body.slug 
+      slug: req.body.slug
     };
-    
+
     if (req.file) {
       // ✅ Save path WITH 'public'
       updateData.handout_pdf = req.file.path;
       updateData.handout_original_filename = req.file.originalname;
 
       // Delete old file if exists
-      const oldCourse = await Course.findById(req.params.id);
-      if (oldCourse.handout_pdf) {
-        const oldPath = path.join(__dirname, '..', oldCourse.handout_pdf);
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
-        }
+      const course = await Course.findById(req.params.id);
+      if (course.handout_pdf && fs.existsSync(course.handout_pdf)) {
+        fs.unlinkSync(course.handout_pdf);
       }
     }
 
@@ -65,13 +62,10 @@ const update = async (req, res) => {
 const deleteCourse = async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
-    
+
     // Delete associated PDF file if exists
-    if (course.handout_pdf) {
-      const filePath = path.join(__dirname, '..', course.handout_pdf);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+    if (course.handout_pdf && fs.existsSync(course.handout_pdf)) {
+      fs.unlinkSync(course.handout_pdf);
     }
 
     // Rest of your delete logic...
@@ -81,7 +75,7 @@ const deleteCourse = async (req, res) => {
         await Question.deleteByLectureId(lecture.id);
       });
     }
-    
+
     await Course.delete(req.params.id);
     await Lecture.deleteByCourseId(req.params.id);
     res.status(200).json({ message: "Course deleted successfully" });
@@ -91,26 +85,26 @@ const deleteCourse = async (req, res) => {
 };
 
 const downloadPDF = async (req, res) => {
-    try {
-        const course = await Course.findById(req.params.id);
-        if (!course || !course.handout_pdf) {
-            return res.status(404).send('Handout not found');
-        }
-
-        // Build absolute path correctly
-        const filePath = path.join(__dirname, '..', course.handout_pdf.replace(/^\/+/, ''));
-        const fileName = course.handout_original_filename || `${course.slug}-handout.pdf`;
-        
-        if (!fs.existsSync(filePath)) {
-            console.error('File not found at path:', filePath);
-            return res.status(404).send('File not found');
-        }
-
-        res.download(filePath, fileName);
-    } catch (err) {
-        console.error('Error serving handout:', err);
-        res.status(500).send('Server error while downloading handout');
+  try {
+    const course = await Course.findById(req.params.id);
+    if (!course || !course.handout_pdf) {
+      return res.status(404).send('Handout not found');
     }
+
+    // Build absolute path correctly
+    const filePath = course.handout_pdf; // already absolute (/data/uploads/..)
+    const fileName = course.handout_original_filename || `${course.slug}-handout.pdf`;
+
+    if (!fs.existsSync(filePath)) {
+      console.error('File not found at path:', filePath);
+      return res.status(404).send('File not found');
+    }
+
+    res.download(filePath, fileName);
+  } catch (err) {
+    console.error('Error serving handout:', err);
+    res.status(500).send('Server error while downloading handout');
+  }
 };
 
 

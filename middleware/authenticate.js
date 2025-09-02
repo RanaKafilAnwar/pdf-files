@@ -2,34 +2,35 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 function bindUser(req, res, next) {
-    const token = req.cookies.token;
-    
-    if (!token) {
-        req.user = null;
-        return next();
-    }
+  const token = req.cookies.token || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
+  
+  if (!token) {
+    req.user = null;
+    return next();
+  }
 
-    jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
-        if (err) {
-            req.user = null;
-            return next();
-        }
-        req.user = decoded;
-        next();
-    });
+  jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+    if (err) {
+      req.user = null;
+      return next();
+    }
+    req.user = decoded;
+    next();
+  });
 }
+
 
 // Keep your existing middlewares for routes that need strict authentication
 function authenticate(req, res, next) {
     if (!req.user) {
-        return res.status(401).redirect('/auth/login');
+        return res.status(401).redirect('https://quizz-18uyh9iw3-zaheer-ahmeds-projects.vercel.app/auth/login');
     }
     next();
 }
 
 function isAdmin(req, res, next) {
     if (!req.user || req.user.role !== 'admin') {
-        return res.status(403).redirect('/');
+        return res.status(403).redirect('https://quizz-18uyh9iw3-zaheer-ahmeds-projects.vercel.app/');
     }
     next();
 }

@@ -1,17 +1,15 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const uploadBase = path.join('/data', 'uploads');
 
 // Configure storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = 'public/uploads/courses/handouts/';
-
-    // Create directory if it doesn't exist
+    const uploadDir = path.join(uploadBase, 'courses/handouts');
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
-
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
@@ -24,7 +22,7 @@ const storage = multer.diskStorage({
 // Configure storage for question images
 const questionStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = 'public/uploads/questions/';
+    const uploadDir =  path.join(uploadBase, 'uploads/questions');
 
     // Create directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
@@ -43,7 +41,7 @@ const questionStorage = multer.diskStorage({
 // Configure storage for option images
 const optionStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = 'public/uploads/options/';
+    const uploadDir =  path.join(uploadBase, 'uploads/options');
 
     // Create directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {

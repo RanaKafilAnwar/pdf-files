@@ -13,6 +13,8 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static('/data/uploads'));
+
 
 // Create MySQL session store
 const sessionStore = new MySQLStore({
