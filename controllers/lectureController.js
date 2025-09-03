@@ -203,8 +203,10 @@ const downloadPDF = async (req, res) => {
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="${lecture.title}-questions.pdf"`);
         res.setHeader('Content-Length', pdfBytes.length);
+        // 🔑 Add this so browser JS can read the header
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
         res.send(Buffer.from(pdfBytes));
-        
+
     } catch (err) {
         console.error('PDF generation error:', err);
         if (!res.headersSent) {
