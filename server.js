@@ -68,18 +68,16 @@ app.use((req, res, next) => {
 app.set('public', path.join(__dirname, 'public'));
 
 const adminRoutes = require('./routes/adminRoutes');
-const courseRoutes = require('./routes/courseRoutes');
 const lectureRoutes = require("./routes/lectureRoutes");
 
 const {bindUser, authenticate, isAdmin} = require('./middleware/authenticate');
 
 app.use(bindUser);
 app.use("/", lectureRoutes);
-app.use("/courses",courseRoutes);
 app.use(authenticate);
 app.use(isAdmin)
 app.use("/admin",adminRoutes);
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log(`Server is running on http://localhost:${process.env.PORT || 3000}`);
+app.listen(process.env.PORT, () => {
+    console.log(`Server is running on http://localhost:${process.env.PORT}`);
 });

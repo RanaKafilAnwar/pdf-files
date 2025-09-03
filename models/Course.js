@@ -29,7 +29,7 @@ class Course {
         // return result.insertId;
     }
 
-    static async update(id, { title, slug, handout_pdf = null, handout_original_filename = null, handout_pdf_public_id = null }) {
+    static async update(id, { title, slug, handout_pdf, handout_original_filename, handout_pdf_public_id }) {
         const [result] = await db.query('UPDATE courses SET title = ?, slug = ?, handout_pdf = ?, handout_original_filename = ?, handout_pdf_public_id = ? WHERE id = ?', [title, slug, handout_pdf, handout_original_filename, handout_pdf_public_id, id]);
         return result.affectedRows;
     }

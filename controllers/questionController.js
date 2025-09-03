@@ -46,8 +46,6 @@ const createQuestion = async (req, res) => {
 const updateQuestion = async (req, res) => {
     try {
         const {  question_text, question_type, question_image } = req.body;
-        
-
 
         await Question.update(req.params.id, {
             question_text,

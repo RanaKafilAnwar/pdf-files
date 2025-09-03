@@ -4,29 +4,6 @@ const pdf = require('pdf-parse'); // You'll need to install this package
 const path = require('path');
 
 class Lecture {
-    static async create({ title, courseId, handoutPath, startPage, endPage }) {
-        const [result] = await db.query(
-            'INSERT INTO lectures (title, course_id, handout_path, start_page, end_page) VALUES (?, ?, ?, ?, ?)',
-            [title, courseId, handoutPath, startPage, endPage]
-        );
-        return this.findById(result.insertId);
-    }
-
-    static async delete(id) {
-        const [result] = await db.query(
-            'DELETE FROM lectures WHERE id = ?', 
-            [id]
-        );
-        return result.affectedRows;
-    }
-
-    static async update(id, { title, courseId, handoutPath, startPage, endPage }) {
-    const [result] = await db.query(
-        'UPDATE lectures SET title = ?, course_id = ?, handout_path = ?, start_page = ?, end_page = ? WHERE id = ?', 
-        [title, courseId, handoutPath, startPage, endPage, id]
-    );
-    return result.affectedRows;
-}
 
 
     static async extractLectureContent(lectureId) {
@@ -55,25 +32,6 @@ class Lecture {
         }
     }
 
-    static async getLectureWithContent(lectureId) {
-        const lecture = await this.findById(lectureId);
-        if (!lecture) return null;
-
-        const content = await this.extractLectureContent(lectureId);
-        return {
-            ...lecture,
-            content
-        };
-    }
-
-    static async updateHandoutInfo(id, { handoutPath, startPage, endPage }) {
-        const [result] = await db.query(
-            'UPDATE lectures SET handout_path = ?, start_page = ?, end_page = ? WHERE id = ?',
-            [handoutPath, startPage, endPage, id]
-        );
-        return result.affectedRows;
-    }
-
     static async getAll() {
         const [rows] = await db.query('SELECT * FROM lectures');
         return rows;
@@ -92,7 +50,11 @@ class Lecture {
             'SELECT * FROM lectures WHERE course_id = ?', 
             [courseId]
         );
-        return rows;
+        if (rows.length > 0){
+            return rows;
+        }else{
+            return [];
+        }
     }
 
     static async deleteByCourseId(courseId) {
@@ -101,26 +63,6 @@ class Lecture {
             [courseId]
         );
         return result.affectedRows;
-    }
-
-    static async getQuizAttemptCount(lectureId) {
-        const [rows] = await db.query(
-            "SELECT COUNT(*) AS attempt_count FROM quiz_results WHERE quiz_id = ?",
-            [lectureId]
-        );
-        return rows.length ? rows[0].attempt_count : 0;
-    }
-    
-    static async updateQuizProgressBasedOnAttempts(lectureId) {
-        const attemptCount = await this.getQuizAttemptCount(lectureId);
-        let progress = (attemptCount >= 5) ? 100.00 : (attemptCount / 5) * 100;
-    
-        await db.query(
-            "UPDATE lectures SET lecture_progress = ? WHERE id = ?",
-            [progress, lectureId]
-        );
-    
-        return progress;
     }
     
     static async updateLectureTotalQuestions(lectureId, totalQuestions) {
