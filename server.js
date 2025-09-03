@@ -8,10 +8,6 @@ const app = express();
 const path = require('path');
 require('dotenv').config();
 
-// Set EJS as the template engine
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
 const cors = require('cors');
 
 app.use(cors({
