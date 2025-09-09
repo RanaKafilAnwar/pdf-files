@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
 class Option {
-    static async create({ option_text = null, question_id, is_correct = false, option_image = null }) {
+    static async create({ option_text = null, question_id, is_correct, option_image }) {
         const [result] = await db.query(
             'INSERT INTO options (option_text, question_id, is_correct, option_image) VALUES (?, ?, ?, ?)',
             [option_text, question_id, is_correct, option_image]
@@ -27,6 +27,11 @@ class Option {
         if (!ids.length) return [];
         const [rows] = await db.query(`SELECT * FROM options WHERE id IN (?)`, [ids]);
         return rows;
+    }
+
+    static async findById(id) {
+        const [rows] = await db.query(`SELECT * FROM options WHERE id = ?`, [id]);
+        return rows[0];
     }
 
     static async findByQuestionId(question_id) {

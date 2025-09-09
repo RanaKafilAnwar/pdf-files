@@ -1,33 +1,70 @@
 const db = require('../config/db');
 const fs = require('fs');
-const pdf = require('pdf-parse'); // You'll need to install this package
 const path = require('path');
+const { PDFDocument } = require('pdf-lib');
+
 
 class Lecture {
 
 
-    static async extractLectureContent(lectureId) {
-        const lecture = await this.findById(lectureId);
-        if (!lecture || !lecture.handout_path) return null;
+    static async extractLecturePDF(lecture) {
+        const course = await this.getCourse(lecture.course_id);
+        if (!course || !course.handout_pdf) return null;
 
-        const fullPath = path.join('public', lecture.handout_path);
-        if (!fs.existsSync(fullPath)) return null;
+        const coursePdfPath = path.join(__dirname, '..', 'public', course.handout_pdf);
+        console.log(coursePdfPath);
+        if (!fs.existsSync(coursePdfPath)) return null;
 
         try {
-            const dataBuffer = fs.readFileSync(fullPath);
-            const data = await pdf(dataBuffer);
-            
-            // Extract pages for this lecture
-            const allPages = data.text.split(/\f/); // Split by form feed character (page break)
-            const lecturePages = allPages.slice(lecture.start_page - 1, lecture.end_page);
-            
-            return {
-                content: lecturePages.join('\n\n[PAGE BREAK]\n\n'), // Mark page breaks
-                totalPages: allPages.length,
-                currentPages: lecturePages.length
-            };
+            const existingPdfBytes = fs.readFileSync(coursePdfPath);
+            const pdfDoc = await PDFDocument.load(existingPdfBytes);
+            const newPdf = await PDFDocument.create();
+
+            // Zero-based pages
+            const pageIndices = [];
+            for (let i = lecture.start_page - 1; i < lecture.end_page; i++) {
+                pageIndices.push(i);
+            }
+
+            const copiedPages = await newPdf.copyPages(pdfDoc, pageIndices);
+            copiedPages.forEach((page) => newPdf.addPage(page));
+
+            // Return PDF as Buffer (not saved anywhere)
+            const lecturePdfBytes = await newPdf.save();
+            return lecturePdfBytes;
         } catch (err) {
-            console.error('Error extracting PDF content:', err);
+            console.error("Error generating lecture PDF:", err);
+            return null;
+        }
+    }
+
+    static async extractLecturesPDF(start_lecture, end_lecture) {
+        const course = await this.getCourse(start_lecture.course_id);
+        if (!course || !course.handout_pdf) return null;
+
+        const coursePdfPath = path.join(__dirname, '..', 'public', course.handout_pdf);
+        console.log(coursePdfPath);
+        if (!fs.existsSync(coursePdfPath)) return null;
+
+        try {
+            const existingPdfBytes = fs.readFileSync(coursePdfPath);
+            const pdfDoc = await PDFDocument.load(existingPdfBytes);
+            const newPdf = await PDFDocument.create();
+
+            // Zero-based pages
+            const pageIndices = [];
+            for (let i = start_lecture.start_page - 1; i < end_lecture.end_page; i++) {
+                pageIndices.push(i);
+            }
+
+            const copiedPages = await newPdf.copyPages(pdfDoc, pageIndices);
+            copiedPages.forEach((page) => newPdf.addPage(page));
+
+            // Return PDF as Buffer (not saved anywhere)
+            const lecturePdfBytes = await newPdf.save();
+            return lecturePdfBytes;
+        } catch (err) {
+            console.error("Error generating lecture PDF:", err);
             return null;
         }
     }
@@ -55,6 +92,14 @@ class Lecture {
         }else{
             return [];
         }
+    }
+
+    static async getCourse(courseId) {
+        const [rows] = await db.query(
+            'SELECT * FROM courses WHERE id = ?', 
+            [courseId]
+        );
+        return rows[0];
     }
 
     static async deleteByCourseId(courseId) {

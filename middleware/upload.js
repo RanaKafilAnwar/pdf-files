@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 // Configure storage for question images
 const questionStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir =  path.join(uploadBase, 'uploads/questions');
+    const uploadDir =  path.join(uploadBase, '/questions');
 
     // Create directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
@@ -41,7 +41,7 @@ const questionStorage = multer.diskStorage({
 // Configure storage for option images
 const optionStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir =  path.join(uploadBase, 'uploads/options');
+    const uploadDir =  path.join(uploadBase, '/options');
 
     // Create directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {

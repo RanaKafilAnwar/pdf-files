@@ -11,6 +11,11 @@ class Question {
         const [rows] = await db.query(`SELECT * FROM questions WHERE id IN (?)`, [ids]);
         return rows;
     }
+
+    static async findById(id) {
+        const [rows] = await db.query(`SELECT * FROM questions WHERE id = ?`, [id]);
+        return rows[0];
+    }
     
     static async findByLectureId(lectureId) {
         const [rows] = await db.query('SELECT * FROM questions WHERE lecture_id = ?', [lectureId]);
@@ -36,10 +41,10 @@ class Question {
         return result.affectedRows;
     }
 
-    static async update(id, { question_text, question_type='multiple_choice', question_image=null }) {
+    static async update(id, { question_text, question_image }) {
         const [result] = await db.query(
-            'UPDATE questions SET question_text = ?, question_type = ?, question_image = ? WHERE id = ?',
-            [question_text, question_type, question_image, id]
+            'UPDATE questions SET question_text = ?, question_image = ? WHERE id = ?',
+            [question_text, question_image || null, id]
         );
         return result.affectedRows;
     }
