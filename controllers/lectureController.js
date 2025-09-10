@@ -313,7 +313,7 @@ const downloadLecturePDF = async (req, res) => {
         // Set headers for download
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="${lecture.title}.pdf"`);
-        res.setHeader('Content-Length', pdfBytes.length);
+        res.setHeader('Content-Length', pdfBuffer.length);
         // Add this so browser JS can read the header
         res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
         res.send(Buffer.from(pdfBuffer));

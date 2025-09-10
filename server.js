@@ -27,10 +27,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
+
+// ✅ Serve uploaded files BEFORE auth middleware
 app.use('/uploads', express.static('/data/uploads'));
-
-
-
 
 // Create MySQL session store
 const sessionStore = new MySQLStore({
@@ -64,19 +63,19 @@ app.use((req, res, next) => {
     next();
 });
 
-
 app.set('public', path.join(__dirname, 'public'));
 
 const adminRoutes = require('./routes/adminRoutes');
 const lectureRoutes = require("./routes/lectureRoutes");
 
-const {bindUser, authenticate, isAdmin} = require('./middleware/authenticate');
+const { bindUser, authenticate, isAdmin } = require('./middleware/authenticate');
 
+// Routes
 app.use(bindUser);
 app.use("/", lectureRoutes);
 app.use(authenticate);
-app.use(isAdmin)
-app.use("/admin",adminRoutes);
+app.use(isAdmin);
+app.use("/admin", adminRoutes);
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on http://localhost:${process.env.PORT}`);
