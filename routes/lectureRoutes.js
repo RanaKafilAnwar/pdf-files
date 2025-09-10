@@ -8,13 +8,13 @@ router.get('/lectures/:id/pdf', lectureController.downloadLecturePDF);
 router.get('/lectures/pdf', lectureController.generateLecturesPdf);
 router.get('/lectures/:id/questions/pdf', lectureController.downloadQuestionPDF);
 
-const dataDir = "/data/uploads/questions";
-router.get("/files", (req, res) => {
-  fs.readdir(dataDir, (err, files) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ files });
-  });
-});
+// const dataDir = "/data/uploads/courses/handouts";
+// router.get("/files", (req, res) => {
+//   fs.readdir(dataDir, (err, files) => {
+//     if (err) return res.status(500).json({ error: err.message });
+//     res.json({ files });
+//   });
+// });
 
 
 // Delete a single file

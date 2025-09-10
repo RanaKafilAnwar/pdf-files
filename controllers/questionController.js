@@ -48,7 +48,7 @@ const createQuestion = async (req, res) => {
 
 const updateQuestion = async (req, res) => {
     try {
-        const { question_text } = req.body;
+        const { question_text, remove_image } = req.body;
         let question_image = null;
         const question = await Question.findById(req.params.id);
 
@@ -59,7 +59,14 @@ const updateQuestion = async (req, res) => {
                 const oldPath = path.join('/data', question.question_image);
                 if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
             }
-        }else{
+        } else if (remove_image === "true") {
+            // ✅ remove image requested
+            if (question && question.question_image) {
+                const oldPath = path.join('/data', question.question_image);
+                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+            }
+            question_image = null;
+        } else {
             question_image = question.question_image
         }
 
@@ -82,8 +89,8 @@ const deleteQuestion = async (req, res) => {
     try {
         const question = await Question.findById(req.body.id);
         if (question && question.question_image) {
-                const oldPath = path.join('/data', question.question_image);
-                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+            const oldPath = path.join('/data', question.question_image);
+            if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
         }
         await Question.delete(req.body.id);
         await Option.deleteByQuestionId(req.body.id);
@@ -139,8 +146,8 @@ const updateOption = async (req, res) => {
     try {
         const { option_text, is_correct } = req.body;
 
-         const option = await Option.findById(req.params.id);
-        
+        const option = await Option.findById(req.params.id);
+
         if (req.file) {
             option_image = `/uploads/options/${path.basename(req.file.path)}`;
             // Delete old file from /data/
@@ -148,7 +155,7 @@ const updateOption = async (req, res) => {
                 const oldPath = path.join('/data', option.option_image);
                 if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
             }
-        }else{
+        } else {
             option_image = option.option_image
         }
 
@@ -161,7 +168,7 @@ const updateOption = async (req, res) => {
             success: true,
             option_text,
             is_correct,
-            option_image:"https://pdf-files-production.up.railway.app"+option_image
+            option_image: "https://pdf-files-production.up.railway.app" + option_image
         });
     } catch (err) {
         res.status(500).json({
@@ -176,8 +183,8 @@ const deleteOption = async (req, res) => {
         const option = await Option.findById(req.params.id);
 
         if (option && option.option_image) {
-                const oldPath = path.join('/data/uploads', option.option_image);
-                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+            const oldPath = path.join('/data/uploads', option.option_image);
+            if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
         }
 
         await Option.delete(req.params.option_id);
