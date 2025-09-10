@@ -27,8 +27,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
-
-// ✅ Serve uploaded files BEFORE auth middleware
 app.use('/uploads', express.static('/data/uploads'));
 
 // Create MySQL session store
