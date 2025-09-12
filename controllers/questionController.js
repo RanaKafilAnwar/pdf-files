@@ -78,7 +78,8 @@ const updateQuestion = async (req, res) => {
         res.status(201).json({
             success: true,
             newText: question_text,
-            question_image: "https://pdf-files-production.up.railway.app" + question_image
+            newImage: question_image ? `https://pdf-files-production.up.railway.app${question_image}` : null,
+            removeImage: remove_image === "true"
         });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -144,8 +145,8 @@ const createOption = async (req, res) => {
 
 const updateOption = async (req, res) => {
     try {
-        const { option_text, is_correct } = req.body;
-
+        const { option_text, is_correct, remove_image } = req.body;
+        let option_image = null;
         const option = await Option.findById(req.params.id);
 
         if (req.file) {
@@ -155,6 +156,13 @@ const updateOption = async (req, res) => {
                 const oldPath = path.join('/data', option.option_image);
                 if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
             }
+        } else if (remove_image === "true") {
+            // ✅ remove image requested
+            if (option && option.option_image) {
+                const oldPath = path.join('/data', option.option_image);
+                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+            }
+            option_image = null;
         } else {
             option_image = option.option_image
         }
@@ -168,7 +176,8 @@ const updateOption = async (req, res) => {
             success: true,
             option_text,
             is_correct,
-            option_image: "https://pdf-files-production.up.railway.app" + option_image
+            newImage: option_image ? `https://pdf-files-production.up.railway.app${option_image}` : null,
+            removeImage: remove_image === "true"
         });
     } catch (err) {
         res.status(500).json({
